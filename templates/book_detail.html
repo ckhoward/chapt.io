@@ -1,0 +1,64 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="book-entry">
+    <h2>{{ book.title }}</h2>
+        <p>by {{ book.author }}</p>
+
+        
+
+        {% for chapter in book.chapter_set.all %}            
+            <div class="card">
+                <div class="card-header">
+                    <span class="font-weight-bold">Chapter {{ chapter.chapter_number }}:</span>
+                    <span class="text-muted">{{ chapter.title }}</span>
+                    
+                    <p>
+                    <br />    
+                    Engaging Reviews: {{ chapter.engaging_reviews_count}}<br />
+                    Boring Reviews: {{ chapter.boring_reviews_count }}<br />
+                    Total Reviews: {{ chapter.rating_set.all.count }}</p>
+                    <hr />
+                    </p>
+                    
+                    <div id="container{{ forloop.counter }}"></div>
+
+                    <script>
+                        Highcharts.chart('container{{ forloop.counter }}', {
+                            chart: {
+                                type: 'column',
+                            },
+                            title: {
+                                text: '{{ chapter.title }}'
+                            },
+                            xAxis: {
+                                categories: ['Ratings']
+                            },
+                            series: [{
+                                name: 'Engaging',
+                                data: [{{ chapter.engaging_reviews_count }}],
+                            }, {
+                                name: 'Boring',
+                                data: [{{ chapter.boring_reviews_count }}],
+                            }]
+                        });
+                    </script>
+                    <p>Chapter ID = {{ chapter.id }}</p>
+                
+                    <form method="POST" novalidate>{% csrf_token %}
+                        {{ form }}
+                        {{ form.rating }}
+                        <input type="hidden" name="{{ form.chapter.html_name }}" value="{{ chapter.id }}" />
+                        <input class="btn btn-primary" type="submit" value="Add Review">
+                    </form>
+
+                </div>
+                {% if forloop.last %}
+                    <p>Back to <a href="{% url 'book_list' %}">All Books</a>.</p>
+                {% endif %}
+            </div>
+        {% endfor %}
+        
+</div>
+
+{% endblock content %}

@@ -1,0 +1,80 @@
+{% extends 'base.html' %}
+
+{% block title %}Reviewed Books{% endblock %}
+
+{% block content %}
+    {% for book in book_list %}
+        <div class="card">
+            <div class="card-header">
+                <span class="font-weight-bold">{{ book.title }}</span> &middot;
+                <span class="text-muted">by {{ book.author }}</span>
+                <span class="float-right"><a href="{% url 'book_detail' book.pk %}">Reviews</a></span>
+                <div id="container{{ forloop.counter }}"></div>
+
+                <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous">
+                    $(document).ready(function() {
+                        var bookid = {{ book.id }};
+                        $.ajax({
+                            type: "GET",
+                            url: "/books",
+                            data: {
+                                book_id: {{ book.id }}
+                            },
+                            success: createChart(data) {
+                                Highcharts.chart('container{{ forloop.counter }}', {
+                                    chart: {
+                                        type: 'area',
+                                    },
+                                    title: {
+                                        text: '{{book.title}}'
+                                    },
+                                    series: [{
+                                        name: 'Engaging',
+                                        data: [series[1]]
+                                    }, {
+                                        name: 'Boring',
+                                        data: [series[0]]
+                                    }]
+                                })
+                            }
+                        })
+                    });
+                </script>
+
+
+
+
+
+                    <!-- partially functioning
+                    <script>
+                        Highcharts.chart('container{{ forloop.counter }}', {
+                            chart: {
+                                type: 'area',
+                            },
+                            title: {
+                                text: '{{ book.title }}'
+                            },
+                            xAxis: {
+                                categories: [ "{{ book.get_chapter_list }}" ]
+                            },
+                            series: [{
+                                name: 'Engaging',
+                                data: ["{{ book.get_engaging_set }}"]
+                            },
+                            {
+                                name: 'Boring',
+                                data: ["{{ book.get_boring_set }}"]
+                            }],
+
+                        });
+                    </script>
+                -->
+                
+
+            </div>
+        </div>
+        <br />
+    {% endfor %}
+{% endblock content %}
+
+path('<int:pk>/', views.BookDetailView.as_view(), name='book_detail')
